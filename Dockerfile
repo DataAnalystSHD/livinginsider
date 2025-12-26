@@ -1,16 +1,14 @@
-FROM node:20-bookworm
+FROM mcr.microsoft.com/playwright:v1.49.0-jammy
 
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
-RUN npm install
+COPY package*.json ./
+RUN npm ci
 
 COPY . .
 
-# Install chromium dependencies & browser
-RUN npx playwright install --with-deps chromium
-
+ENV NODE_ENV=production
 ENV PORT=3000
 EXPOSE 3000
 
-CMD ["npm","start"]
+CMD ["node", "server.js"]

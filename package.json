@@ -4,10 +4,11 @@
   "type": "module",
   "private": true,
   "description": "LivingInsider scraper + web UI + Excel export",
-  "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
-  },
+"scripts": {
+  "start": "node server.js",
+  "dev": "node server.js",
+  "postinstall": "node -e \"if(!process.env.CI) require('child_process').execSync('npx playwright install chromium',{stdio:'inherit'})\""
+},
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
