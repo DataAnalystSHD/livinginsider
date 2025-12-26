@@ -1,7 +1,5 @@
-// server.js (LATEST FIXED) — no 304 for /api/job + improved TTL + persistence guards + detailed logging
-// ✅ Fixes “กราฟไม่ขึ้น” ที่เกิดจาก /api/job ได้ 304 (ETag/cache) ทำให้ client ไม่ได้ JSON ใหม่
-// ✅ เพิ่ม Cache-Control: no-store เฉพาะ API ที่ต้องสด + ปิด ETag ทั้งระบบ
-// ✅ คงโครงเดิมของคุณ (TTL, eviction, SSE ping, export CSV/XLSX) แต่เพิ่มส่วนสำคัญให้ครบ
+// server.js (CORRECTED) — ย้าย app.listen() ไปท้ายสุด
+// ✅ แก้ Temporal Dead Zone Error โดยประกาศ app ก่อนใช้
 
 import "dotenv/config";
 import express from "express";
@@ -17,8 +15,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Listening on", PORT));
-
 
 /** =========================
  *  Crash guards
@@ -211,20 +207,17 @@ function normalizeOpts(body) {
 }
 
 /** =========================
- *  App
+ *  ✅ สร้าง Express App ก่อนใช้
  *  ========================= */
 const app = express();
 
-// ✅ สำคัญมาก: ปิด ETag ทั้งระบบ (กัน 304 ที่ทำให้ client ไม่ได้ JSON)
+// ✅ ปิด ETag ทั้งระบบ (กัน 304)
 app.set("etag", false);
 
 app.use(cors());
 app.use(express.json({ limit: JSON_LIMIT }));
 
-/** =========================
- *  API no-cache middleware
- *  - ป้องกัน browser/cache กลืน response ที่ต้อง “สด”
- *  ========================= */
+/** API no-cache middleware */
 app.use((req, res, next) => {
   if (req.path.startsWith("/api/")) {
     res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
@@ -235,7 +228,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// request logging (api only)
+// Request logging (api only)
 app.use((req, res, next) => {
   const t0 = Date.now();
   res.on("finish", () => {
@@ -247,7 +240,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// static UI (cache ok)
+// Static UI (cache ok)
 app.use(express.static(path.join(__dirname, "public"), { maxAge: "1h" }));
 
 app.get("/api/health", (_req, res) => {
@@ -304,8 +297,6 @@ app.get("/api/scrape/progress/:jobId", (req, res) => {
 
 /** =========================
  *  Run scrape
- *  - async default: returns {jobId}
- *  - sync=1: returns {jobId, rows, meta} (wait until done)
  *  ========================= */
 app.post("/api/scrape", async (req, res) => {
   let jobId = "";
@@ -393,8 +384,6 @@ app.post("/api/scrape", async (req, res) => {
 
 /** =========================
  *  Fetch job result
- *  ✅ สำคัญ: route นี้ต้องไม่โดน 304 อีกต่อไป
- *  เพราะเราปิด ETag + บังคับ no-store แล้ว
  *  ========================= */
 app.get("/api/job/:id", (req, res) => {
   const jobId = String(req.params.id || "");
@@ -405,7 +394,6 @@ app.get("/api/job/:id", (req, res) => {
     return res.status(404).json({ error: "job not found or expired" });
   }
 
-  // ✅ ใส่ header ซ้ำแบบ explicit เผื่อ proxy บางตัว
   res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
   res.setHeader("Pragma", "no-cache");
   res.setHeader("Expires", "0");
@@ -452,11 +440,13 @@ app.get("*", (_req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-/** Listen */
+/** =========================
+ *  ✅ Listen ท้ายสุด - หลังจากประกาศ app แล้ว
+ *  ========================= */
 app.listen(PORT, () => {
-  console.log(`LivingInsider Scraper UI running on http://localhost:${PORT}`);
-  console.log(`TTL: ${Math.round(TTL_MS / 60000)} minutes | Max cache: ${MAX_CACHE_ITEMS} jobs`);
-  console.log(`API:
+  console.log(`🚀 LivingInsider Scraper UI running on http://localhost:${PORT}`);
+  console.log(`📊 TTL: ${Math.round(TTL_MS / 60000)} minutes | Max cache: ${MAX_CACHE_ITEMS} jobs`);
+  console.log(`API Endpoints:
   - POST /api/scrape              (async, returns {jobId})
   - POST /api/scrape?sync=1       (sync, returns {jobId, rows, meta})
   - SSE  /api/scrape/progress/:jobId
