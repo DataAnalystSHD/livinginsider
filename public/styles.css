@@ -34,7 +34,7 @@
   --tableRowHover: rgba(59,130,246,.06);
 
   /* layout tokens */
-  --wrap: 1380px;     /* เพิ่มให้เต็มจอกว่าเดิม */
+  --wrap: 1180px;     /* ✅ ปรับให้ “พอดี” ไม่เต็มจอ */
   --gutter: 14px;
   --pad: 16px;
 
@@ -772,4 +772,178 @@ tbody td a{
   .charts-grid{grid-template-columns:1fr}
   .chart-card canvas{height:220px !important; max-height:220px}
   .help-grid{grid-template-columns:1fr}
+}
+
+/* =============================
+   Dashboard: not full screen
+   ============================= */
+
+/* บีบทุก section ให้อยู่ในกรอบกลางแบบอ่านง่าย */
+.main > .glass{
+  max-width: var(--wrap);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Dashboard ให้ดูเป็น “หน้าในหน้า” ไม่ล้นเต็มจอ */
+.dashboard-section{
+  max-width: var(--wrap);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ลดความโล่งเกินไปของกริดชาร์ตบนจอกว้างมาก */
+@media (min-width: 1400px){
+  .charts-grid{
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* ชาร์ต: ลดความสูงนิดให้บาลานซ์ */
+.chart-card{padding:16px}
+.chart-card canvas{
+  height: 220px !important;
+  max-height: 220px;
+}
+
+/* HERO chart: ไม่ต้องใหญ่เกินไป */
+.chart-hero .chart-canvas-wrap canvas,
+.chart-hero canvas{
+  height: 260px !important;
+  max-height: 260px;
+}
+
+/* =============================
+   Top Recommendations: ทำเป็นการ์ด ไม่เป็นแถบยาว
+   ============================= */
+.top-listings{
+  margin-top: 14px;
+}
+.top-listings h3{
+  font-weight: 900;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.top-grid{
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+  gap: 12px;
+}
+
+.top-card{
+  border:1px solid rgba(15,23,42,.10);
+  background: linear-gradient(180deg, rgba(255,255,255,.86), rgba(255,255,255,.68));
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow: 0 12px 28px rgba(15,23,42,.08);
+  min-width:0;
+}
+
+.top-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom: 10px;
+}
+
+.top-badge{
+  display:inline-flex;
+  align-items:center;
+  padding: 7px 10px;
+  border-radius: 999px;
+  color: rgba(255,255,255,.96);
+  font-weight: 900;
+  font-size: 11px;
+  white-space:nowrap;
+}
+
+.top-score{
+  font-weight: 1000;
+  font-size: 18px;
+  line-height: 1;
+  color: rgba(11,23,51,.92);
+}
+
+.top-title{
+  font-weight: 900;
+  font-size: 12px;
+  line-height: 1.35;
+  color: rgba(11,23,51,.88);
+  display:-webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3; /* ✅ standard property to satisfy lint + future browsers */
+  -webkit-box-orient: vertical;
+  overflow:hidden;
+  margin-bottom: 10px;
+}
+
+.top-details{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.top-detail{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.top-detail .label{font-weight:900}
+.top-detail .value{
+  font-weight:900;
+  color: rgba(11,23,51,.85);
+  max-width: 58%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+/* =============================
+   BTS Hotspots ให้เป็น list card
+   ============================= */
+.hotspots-section{margin-top: 14px;}
+.hotspots-section h3{
+  font-weight: 900;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.hotspots-list{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.hotspot-item{
+  border:1px solid rgba(15,23,42,.10);
+  background: rgba(255,255,255,.62);
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow: 0 12px 26px rgba(15,23,42,.06);
+  min-width:0;
+}
+
+/* =============================
+   Responsive: ทำให้สวยในมือถือ
+   ============================= */
+@media (max-width: 980px){
+  .main > .glass,
+  .dashboard-section{
+    max-width: 720px;   /* บีบให้พอดีบนแท็บเล็ต/มือถือแนวนอน */
+  }
+}
+@media (max-width: 560px){
+  .main > .glass,
+  .dashboard-section{
+    max-width: 100%;
+  }
+  .chart-card canvas{height: 200px !important; max-height: 200px;}
+  .top-grid{grid-template-columns: 1fr;}
+  .hotspots-list{grid-template-columns: 1fr;}
 }
