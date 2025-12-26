@@ -3,7 +3,9 @@ FROM mcr.microsoft.com/playwright:v1.49.0-jammy
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --only=production --prefer-offline
+
+# ✅ ใช้ npm install
+RUN npm install --production
 
 COPY . .
 
