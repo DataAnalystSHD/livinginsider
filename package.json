@@ -4,21 +4,22 @@
   "type": "module",
   "private": true,
   "description": "LivingInsider scraper + web UI + Excel export",
-"scripts": {
-  "start": "node server.js",
-  "dev": "node server.js"
-}
-,
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "playwright": "^1.49.0",
+    "playwright": "1.57.0",
     "uuid": "^9.0.1",
-    "xlsx": "^0.18.5",
-    "eslint": "^8.0.0",     
-    "jest": "^29.0.0",        
-    "nodemon": "^3.0.0",    
-    "@types/node": "^20.0.0"
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "eslint": "^8.0.0",
+    "jest": "^29.0.0",
+    "nodemon": "^3.0.0"
   }
 }
